@@ -62,6 +62,12 @@ signal.signal(signal.SIGINT, cleanup)
 signal.signal(signal.SIGTERM, cleanup)
 atexit.register(cleanup)
 
+def getBatteryOffsetFromFile():
+    f = open("battery_offset")
+    offset = int(f.read())
+    f.close()
+    return offset
+
 def setAmpere(i):
     currentTime = (datetime.now() + timedelta(hours=2)).strftime("%H:%M:%S")
     if i < 6:
@@ -96,6 +102,8 @@ while True:
     solarPower = int(solarPower)
 
     battery_soc = VeDbusItemImport(dbusConn, 'com.victronenergy.battery.ttyO2', '/Soc').get_value()
+
+    batteryOffset += getBatteryOffsetFromFile()
 
     if args.goe_ampere > 0:
         iGoe = args.goe_ampere
