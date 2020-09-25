@@ -114,7 +114,7 @@ while True:
         iGoe = 6
 
     if args.verbose:
-        print "PV Watt:", solarPower, "I fuer Bat Offset", batteryOffset, "w:", iGoe, "SOC:", battery_soc
+        print "PV=%iW: Bat Offset=%iW iGow=%iA SOC=%.2f%%" % (solarPower,batteryOffset,iGoe,battery_soc)
 
     if iGoe != iGoe_old:
         if setAmpere(iGoe):
