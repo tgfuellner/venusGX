@@ -123,7 +123,8 @@ while True:
     if battery_soc != None and battery_soc < args.solar_soc:
         if args.verbose:
             print "Batterie bei weniger als", args.solar_soc, "%, stoppe Ladung"
-        batteryOffset = -500
+        batteryOffset = -1000
+        args.goe_ampere = 0
     else:
         BatteryHighModeOutPercent = 85
         if battery_soc != None and batteryOffset != args.battery_offset and battery_soc > args.solar_soc+20 and battery_soc < BatteryHighModeOutPercent:
