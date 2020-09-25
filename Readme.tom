@@ -1,0 +1,21 @@
+# Aktuelle Fronius Leistung:
+wget -O - "http://169.254.0.180/solar_api/v1/GetInverterRealtimeData.cgi?Scope=System"|grep -A 4 PAC
+dbus -y com.victronenergy.system /Ac/PvOnGrid/L1/Power GetValue
+
+# Batterie SOC
+dbus -y com.victronenergy.battery.ttyO2 /Soc GetValue
+
+# Multiplus ausschalten:
+dbus -y com.victronenergy.vebus.ttyO5 /Mode SetValue 4
+# und einschalten:
+dbus -y com.victronenergy.vebus.ttyO5 /Mode SetValue 3
+# crontab:   2h eher im Sommer
+15 6 * * * /usr/bin/dbus -y com.victronenergy.vebus.ttyO5 /Mode SetValue 3 >/dev/null
+30 17 * * * /usr/bin/dbus -y com.victronenergy.vebus.ttyO5 /Mode SetValue 4 >/dev/null
+
+# go-e Charger Ip
+grep go-e /var/log/mess*   --> 172.24.24.18
+
+from goecharger import (GoeCharger)
+status = GoeCharger('172.24.24.18').requestStatus()
+status = GoeCharger('172.24.24.18').setMaxCurrent(11)
