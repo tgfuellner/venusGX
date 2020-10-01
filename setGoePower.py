@@ -93,9 +93,9 @@ def setAmpere(i):
             return False
 
 iGoe_old = 0
-batteryOffset = args.battery_offset
 
 while True:
+    batteryOffset = args.battery_offset
     solarPower = VeDbusItemImport(dbusConn, 'com.victronenergy.system', '/Ac/PvOnGrid/L1/Power').get_value()
     if solarPower == None:
         solarPower = 0
