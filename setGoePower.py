@@ -16,7 +16,9 @@ import dbus
 sys.path.insert(1, os.path.join(os.path.dirname(__file__), '/opt/victronenergy/vrmlogger/ext/velib_python/'))
 from vedbus import VeDbusItemImport
 
-GOE_IP='172.24.24.18'
+# VenusGX Wifi
+# GOE_IP='172.24.24.18'
+GOE_IP='192.168.0.126'
 iGoe = 6
 
 parser = argparse.ArgumentParser()
