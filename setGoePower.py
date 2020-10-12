@@ -119,7 +119,7 @@ while True:
         iGoe = 6
 
     if args.verbose:
-        print "PV=%iW: Bat Offset=%iW iGow=%iA SOC=%.2f%%" % (solarPower,batteryOffset,iGoe,battery_soc)
+        print "PV=%iW: Bat Offset=%iW iGoe=%iA SOC=%.2f%%" % (solarPower,batteryOffset,iGoe,battery_soc)
 
     if iGoe != iGoe_old:
         if setAmpere(iGoe):
@@ -128,7 +128,7 @@ while True:
     if battery_soc != None and battery_soc < args.solar_soc:
         if args.verbose:
             print "Batterie bei weniger als", args.solar_soc, "%, stoppe Ladung"
-        batteryOffset = -1000
+        args.battery_offset = -1000
         args.goe_ampere = 0
     else:
         BatteryHighModeOutPercent = 85
