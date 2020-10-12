@@ -103,7 +103,10 @@ while True:
         solarPower = 0
     solarPower = int(solarPower)
 
-    battery_soc = VeDbusItemImport(dbusConn, 'com.victronenergy.battery.ttyO2', '/Soc').get_value()
+    try:
+        battery_soc = VeDbusItemImport(dbusConn, 'com.victronenergy.battery.ttyO2', '/Soc').get_value()
+    except Exception:
+        print "Konnte SOC nicht bestimmen"
 
     batteryOffset += getBatteryOffsetFromFile()
 
