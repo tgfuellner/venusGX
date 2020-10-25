@@ -11,6 +11,7 @@ dbus -y com.victronenergy.vebus.ttyO5 /Mode SetValue 4
 dbus -y com.victronenergy.vebus.ttyO5 /Mode SetValue 3
 
 # crontab:   2h eher im Sommer
+# reboot 3 minutes after starting Multiplus
 3 6 * * * /sbin/reboot
 15 6 * * * /usr/bin/dbus -y com.victronenergy.vebus.ttyO5 /Mode SetValue 3 >/dev/null
 30 17 * * * /usr/bin/dbus -y com.victronenergy.vebus.ttyO5 /Mode SetValue 4 >/dev/null
