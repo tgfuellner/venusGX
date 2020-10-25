@@ -9,7 +9,9 @@ dbus -y com.victronenergy.battery.ttyO2 /Soc GetValue
 dbus -y com.victronenergy.vebus.ttyO5 /Mode SetValue 4
 # und einschalten:
 dbus -y com.victronenergy.vebus.ttyO5 /Mode SetValue 3
+
 # crontab:   2h eher im Sommer
+3 6 * * * /sbin/reboot
 15 6 * * * /usr/bin/dbus -y com.victronenergy.vebus.ttyO5 /Mode SetValue 3 >/dev/null
 30 17 * * * /usr/bin/dbus -y com.victronenergy.vebus.ttyO5 /Mode SetValue 4 >/dev/null
 
