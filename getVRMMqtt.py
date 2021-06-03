@@ -3,10 +3,10 @@ import ssl
 import json
 import os
 from paho.mqtt.client import Client 
+from vrmCredentials import username
+from vrmCredentials import password
+from vrmCredentials import portal_id
  
-username = "thomas.gfuellner@gmail.com"
-password = ""
-portal_id = ""
 mqtt_broker = "mqtt70.victronenergy.com"
 bat_topic = "N/%s/system/0/Dc/Battery/Voltage" % portal_id
 soc_topic = "N/%s/system/0/Dc/Battery/Soc" % portal_id
