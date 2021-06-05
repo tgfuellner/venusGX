@@ -10,6 +10,12 @@ from vrmCredentials import portal_id
 mqtt_broker = "mqtt70.victronenergy.com"
 bat_topic = "N/%s/system/0/Dc/Battery/Voltage" % portal_id
 soc_topic = "N/%s/system/0/Dc/Battery/Soc" % portal_id
+
+def reconnect():
+    print("reconnect")
+    client.loop_stop()
+    client.reconnect()
+    client.loop_start()
  
 def on_message(client, userdata, message):
     val = json.loads(message.payload)
@@ -22,12 +28,20 @@ def on_message(client, userdata, message):
     # os._exit(0)
 
 def on_BatVoltage(client, userdata, message):
-    val = json.loads(message.payload)
-    print("Vbatt = %s" % val["value"])
+    try:
+        val = json.loads(message.payload)
+        print("Vbatt = %s" % val["value"])
+    except:
+        print("BatVoltage Exception")
+        reconnect()
  
 def on_Soc(client, userdata, message):
-    val = json.loads(message.payload)
-    print("SOC = %s" % val["value"])
+    try:
+        val = json.loads(message.payload)
+        print("SOC = %s" % val["value"])
+    except:
+        print("SOC Exception")
+        reconnect()
  
  
 def on_connect(client, userdata, rc, *args): 
