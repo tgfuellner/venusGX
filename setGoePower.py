@@ -25,6 +25,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-b", "--battery_offset", help="Solar Battery Offset in Watt", type=int, default=0)
 parser.add_argument("-s", "--solar_soc", help="Keep Solar Battery State of Charge in Percent", type=int, default=20)
 parser.add_argument("-i", "--goe_ampere", help="Charge with given ampere", type=int, default=0)
+parser.add_argument("-m", "--goe_max_ampere", help="Do not use more ampere for charging", type=int, default=18)
 parser.add_argument("-v", "--verbose", help="increase output verbosity", action="store_true")
 args = parser.parse_args()
 
@@ -41,11 +42,16 @@ def cleanup(*args):
         goeCharger.setMaxCurrent(15)
         time.sleep(10)
 
+    os._exit(0)
+
     if iGoe > 14:
         # Besser fuer die Sicherung:
         print "Stelle Goe auf 10 Ampere ... Warte 10s"
         goeCharger.setMaxCurrent(10)
         time.sleep(10)
+
+    os._exit(0)
+
 
     if iGoe > 10:
         print "Stelle Goe auf 6 Ampere ... Warte 10s"
@@ -60,8 +66,8 @@ def cleanup(*args):
 
     os._exit(0)
 
-signal.signal(signal.SIGINT, cleanup)
-signal.signal(signal.SIGTERM, cleanup)
+#signal.signal(signal.SIGINT, cleanup)
+#signal.signal(signal.SIGTERM, cleanup)
 atexit.register(cleanup)
 
 def getBatteryOffsetFromFile():
@@ -88,7 +94,7 @@ def setAmpere(i):
         try:
             goeCharger.setAllowCharging(1)
             status = goeCharger.setMaxCurrent(i)
-            print i, "Ampere erfolgreich gesetzt um", currentTime
+            print "--> ", i, "Ampere erfolgreich gesetzt um", currentTime
             return True
         except Exception:
             print "Nicht gesetzt!", i
@@ -120,6 +126,10 @@ while True:
 
     if args.verbose:
         print "PV=%iW: Bat Offset=%iW iGoe=%iA SOC=%.2f%%" % (solarPower,batteryOffset,iGoe,battery_soc)
+
+    if iGoe > args.goe_max_ampere:
+        iGoe = args.goe_max_ampere
+        print "Max Limit reached! set current to %iA" % (iGoe,)
 
     if iGoe != iGoe_old:
         if setAmpere(iGoe):
