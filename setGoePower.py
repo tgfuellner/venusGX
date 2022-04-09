@@ -38,7 +38,7 @@ dbusConn = dbus.SystemBus()
 def cleanup(*args):
     if iGoe > 20:
         # Besser fuer die Sicherung:
-        print "Stelle Goe auf 15 Ampere ... Warte 10s"
+        print("Stelle Goe auf 15 Ampere ... Warte 10s")
         goeCharger.setMaxCurrent(15)
         time.sleep(10)
 
@@ -46,7 +46,7 @@ def cleanup(*args):
 
     if iGoe > 14:
         # Besser fuer die Sicherung:
-        print "Stelle Goe auf 10 Ampere ... Warte 10s"
+        print("Stelle Goe auf 10 Ampere ... Warte 10s")
         goeCharger.setMaxCurrent(10)
         time.sleep(10)
 
@@ -54,15 +54,15 @@ def cleanup(*args):
 
 
     if iGoe > 10:
-        print "Stelle Goe auf 6 Ampere ... Warte 10s"
+        print("Stelle Goe auf 6 Ampere ... Warte 10s")
         goeCharger.setMaxCurrent(6)
         time.sleep(10)
 
     try:
         GoeCharger(GOE_IP).setAllowCharging(1)
-        print "Eingestellt auf Charging 6 Ampere"
+        print("Eingestellt auf Charging 6 Ampere")
     except Exception:
-        print "Goe ist nicht erreichbar (1)"
+        print("Goe ist nicht erreichbar (1)")
 
     os._exit(0)
 
@@ -83,21 +83,21 @@ def setAmpere(i):
             if 'no vehicle' in goeCharger.requestStatus()['car_status']:
                 goeCharger.setAllowCharging(1)
                 if args.verbose:
-                    print "Kein Auto angesteckt"
+                    print("Kein Auto angesteckt")
             else:
                 goeCharger.setAllowCharging(0)
-                print "Zu wenig Sonne, stoppe Laden um", currentTime
+                print("Zu wenig Sonne, stoppe Laden um %s" % currentTime)
         except Exception:
-            print "Goe ist nicht erreichbar!"
+            print("Goe ist nicht erreichbar!")
             return False
     else:
         try:
             goeCharger.setAllowCharging(1)
             status = goeCharger.setMaxCurrent(i)
-            print "--> ", i, "Ampere erfolgreich gesetzt um", currentTime
+            print("--> %d Ampere erfolgreich gesetzt um %s" % (i, currentTime))
             return True
         except Exception:
-            print "Nicht gesetzt!", i
+            print("Nicht gesetzt! %s" % i)
             return False
 
 iGoe_old = 0
@@ -112,7 +112,7 @@ while True:
     try:
         battery_soc = VeDbusItemImport(dbusConn, 'com.victronenergy.battery.ttyO2', '/Soc').get_value()
     except Exception:
-        print "Konnte SOC nicht bestimmen"
+        print("Konnte SOC nicht bestimmen")
 
     batteryOffset += getBatteryOffsetFromFile()
 
@@ -125,36 +125,37 @@ while True:
         iGoe = 6
 
     if args.verbose:
-        print "PV=%iW: Bat Offset=%iW iGoe=%iA SOC=%.2f%%" % (solarPower,batteryOffset,iGoe,battery_soc)
+        print("PV=%iW: Bat Offset=%iW iGoe=%iA SOC=%.2f%%" % (solarPower,batteryOffset,iGoe,battery_soc))
 
     if iGoe > args.goe_max_ampere:
         iGoe = args.goe_max_ampere
-        print "Max Limit reached! set current to %iA" % (iGoe,)
+        print("Max Limit reached! set current to %iA" % iGoe)
 
+    iGoe = int(iGoe)
     if iGoe != iGoe_old:
         if setAmpere(iGoe):
             iGoe_old = iGoe
 
     if battery_soc != None and battery_soc < args.solar_soc:
         if args.verbose:
-            print "Batterie bei weniger als", args.solar_soc, "%, stoppe Ladung"
+            print("Batterie bei weniger als %s%%, stoppe Ladung" % args.solar_soc)
         args.battery_offset = -1000
         args.goe_ampere = 0
     else:
         BatteryHighModeOutPercent = 85
         if battery_soc != None and batteryOffset != args.battery_offset and battery_soc > args.solar_soc+20 and battery_soc < BatteryHighModeOutPercent:
             if args.verbose:
-                print "Batterie bei mehr als", args.solar_soc+20, "%, restauriere alten Battery Offset"
+                print("Batterie bei mehr als %s%%, restauriere alten Battery Offset" % args.solar_soc+20)
             batteryOffset = args.battery_offset
 
         if battery_soc != None and battery_soc > 96:
             if args.verbose:
-                print "Batterie bei mehr als 96%, entlade Solarbatterie"
+                print("Batterie bei mehr als 96%%, entlade Solarbatterie")
             batteryOffset  = 1500
 
         if battery_soc != None and batteryOffset != args.battery_offset and battery_soc < BatteryHighModeOutPercent:
             if args.verbose:
-                print "Batterie bei weniger als", BatteryHighModeOutPercent, "%, restauriere alten Battery Offset"
-	    battery_offset = args.battery_offset
+                print("Batterie bei weniger als %s%%, restauriere alten Battery Offset" % BatteryHighModeOutPercent)
+            battery_offset = args.battery_offset
 
     time.sleep(10)
