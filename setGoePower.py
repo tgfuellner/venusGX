@@ -25,7 +25,8 @@ parser = argparse.ArgumentParser()
 parser.add_argument("-b", "--battery_offset", help="Solar Battery Offset in Watt", type=int, default=0)
 parser.add_argument("-s", "--solar_soc", help="Keep Solar Battery State of Charge in Percent", type=int, default=20)
 parser.add_argument("-i", "--goe_ampere", help="Charge with given ampere", type=int, default=0)
-parser.add_argument("-m", "--goe_max_ampere", help="Do not use more ampere for charging", type=int, default=18)
+parser.add_argument("-m", "--goe_max_ampere", help="Do not use more ampere for charging", type=int, default=20)
+parser.add_argument("-k", "--keep_charging", help="Dont stop charging, usfull if car cant be woken up", action="store_true")
 parser.add_argument("-v", "--verbose", help="increase output verbosity", action="store_true")
 args = parser.parse_args()
 
@@ -85,8 +86,9 @@ def setAmpere(i):
                 if args.verbose:
                     print("Kein Auto angesteckt")
             else:
-                goeCharger.setAllowCharging(0)
-                print("Zu wenig Sonne, stoppe Laden um %s" % currentTime)
+                if not args.keep_charging:
+                    goeCharger.setAllowCharging(0)
+                    print("Zu wenig Sonne, stoppe Laden um %s" % currentTime)
         except Exception:
             print("Goe ist nicht erreichbar!")
             return False
