@@ -26,6 +26,7 @@ parser.add_argument("-b", "--battery_offset", help="Solar Battery Offset in Watt
 parser.add_argument("-s", "--solar_soc", help="Keep Solar Battery State of Charge in Percent", type=int, default=20)
 parser.add_argument("-i", "--goe_ampere", help="Charge with given ampere", type=int, default=0)
 parser.add_argument("-m", "--goe_max_ampere", help="Do not use more ampere for charging", type=int, default=22)
+parser.add_argument("-n", "--goe_min_ampere", help="Do not use less ampere for charging", type=int, default=0)
 parser.add_argument("-k", "--keep_charging", help="Dont stop charging, usfull if car cant be woken up", action="store_true")
 parser.add_argument("-v", "--verbose", help="increase output verbosity", action="store_true")
 args = parser.parse_args()
@@ -79,6 +80,8 @@ def getBatteryOffsetFromFile():
 
 def setAmpere(i):
     currentTime = (datetime.now() + timedelta(hours=2)).strftime("%H:%M:%S")
+    global battery_soc
+
     if i < 6:
         try:
             if 'no vehicle' in goeCharger.requestStatus()['car_status']:
@@ -96,7 +99,7 @@ def setAmpere(i):
         try:
             goeCharger.setAllowCharging(1)
             status = goeCharger.setMaxCurrent(i)
-            print("--> %d Ampere gesetzt um %s" % (i, currentTime))
+            print("--> %d Ampere gesetzt um %s SOC=%.2f%%" % (i, currentTime, battery_soc))
             return True
         except Exception:
             print("Nicht gesetzt! %s" % i)
@@ -125,6 +128,9 @@ while True:
 
     if iGoe < 6 and solarPower > 1200:
         iGoe = 6
+
+    if iGoe < args.goe_min_ampere:
+        iGoe = args.goe_min_ampere
 
     if args.verbose:
         print("PV=%iW: Bat Offset=%iW iGoe=%iA SOC=%.2f%%" % (solarPower,batteryOffset,iGoe,battery_soc))
