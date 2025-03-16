@@ -1,0 +1,15 @@
+Installing new crontab
+mount -o remount,rw /
+crontab -e oder crontab crontab.last
+mount -o remount,ro /
+
+
+# Inverter Power einstellen:
+dbus -y com.victronenergy.settings /Settings/CGwacs/MaxDischargePower SetValue 3000.0
+dbus -y com.victronenergy.settings /Settings/CGwacs/MaxChargePower SetValue 1000.0
+
+# Batterie Spannung
+dbus -y com.victronenergy.system /Dc/Battery/Voltage GetValue
+
+#ladeRegler
+screen -r

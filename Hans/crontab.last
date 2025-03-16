@@ -1,0 +1,4 @@
+35 4 * * * /data/dbus-fronius-smart-meter/restart.sh
+35 11 * * * /data/dbus-fronius-smart-meter/restart.sh
+35 16 * * * /data/dbus-fronius-smart-meter/restart.sh
+35 21 * * * /data/dbus-fronius-smart-meter/restart.sh
