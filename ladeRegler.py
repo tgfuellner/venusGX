@@ -8,12 +8,44 @@ import time
 
 # refresh delay in seconds between each DBus querying
 # _RefreshSleep = 0.5 # 500ms
-_RefreshSleep = 20.0
+_RefreshSleep = 10.0
 
+# Parameter für den PID-Regler
+Kp = 1300.0  # Proportionalverstärkung
+Ki = 200.0  # Integralverstärkung
+Kd = 1 #0.1 # Derivative Verstärkung
+print("Kp =",Kp, " Ki =",Ki, " Kd =",Kd)
+
+setpoint = 54.6  # Zielspannung (V)
+min_output = 500 # Minimale Ladeleistung (W)
+max_output = 4000 # Maximale Ladeleistung (W)
+dt = 0.1  # Zeitintervall (s)
 
 # === =========================== ===
 # === NO CHANGES AFTER THIS POINT ===
 # === =========================== ===
+
+class PIDController:
+    def __init__(self, Kp, Ki, Kd, setpoint, min_output, max_output):
+        self.Kp = Kp
+        self.Ki = Ki
+        self.Kd = Kd
+        self.setpoint = setpoint
+        self.min_output = min_output
+        self.max_output = max_output
+        self.previous_error = 0
+        self.integral = 0
+
+    def update(self, process_variable, dt):
+        error = self.setpoint - process_variable
+        self.integral += error * dt
+        derivative = (error - self.previous_error) / dt
+
+        output = self.Kp * error + self.Ki * self.integral + self.Kd * derivative
+        output = max(min(output, self.max_output), self.min_output) # Begrenzung des Ausgangs
+
+        self.previous_error = error
+        return output
 
 
 def dbus_getvalue(bus, service, object_path):
@@ -29,28 +61,26 @@ def dbus_setvalue(bus, service, object_path, value):
 # === MAIN ===
 bus = dbus.SystemBus()
 
+# Initialisierung des PID-Reglers
+pid = PIDController(Kp, Ki, Kd, setpoint, min_output, max_output)
 
 # step through config services
 while True:
     try:
         vbat = dbus_getvalue(bus, "com.victronenergy.system", "/Dc/Battery/Voltage")
 
-        if vbat < 54.4: newPower = 4000
-        elif vbat < 54.45: newPower = 3000
-        elif vbat < 54.5: newPower = 2500
-        elif vbat < 54.6: newPower = 1000
-        else:
-            newPower = 500
+        newPower = pid.update(vbat, dt)
 
         chargePower = dbus_getvalue(
             bus, "com.victronenergy.settings", "/Settings/CGwacs/MaxChargePower"
         )
+        # print(vbat, newPower, chargePower, abs(newPower - chargePower))
 
-        if newPower != chargePower:
+        if abs(newPower - chargePower) > 10:
             dbus_setvalue(
                 bus, "com.victronenergy.settings", "/Settings/CGwacs/MaxChargePower", newPower
             )
-            print(time.asctime(), "Setting ChargePower:", newPower, "vBat:", vbat)
+            print(time.asctime(), f"Setting ChargePower: {newPower:.1f}W vBat:{vbat:.2f}V")
 
         soc = dbus_getvalue(bus, "com.victronenergy.system", "/Dc/Battery/Soc")
         if soc > 50:
