@@ -35,9 +35,9 @@ while True:
     try:
         vbat = dbus_getvalue(bus, "com.victronenergy.system", "/Dc/Battery/Voltage")
 
-        if vbat < 54.0: newPower = 4000
-        elif vbat < 54.2: newPower = 2500
-        elif vbat < 54.4: newPower = 1500
+        if vbat < 54.4: newPower = 4000
+        elif vbat < 54.45: newPower = 3000
+        elif vbat < 54.5: newPower = 2500
         elif vbat < 54.6: newPower = 1000
         else:
             newPower = 500
@@ -52,6 +52,20 @@ while True:
             )
             print(time.asctime(), "Setting ChargePower:", newPower, "vBat:", vbat)
 
+        soc = dbus_getvalue(bus, "com.victronenergy.system", "/Dc/Battery/Soc")
+        if soc > 50:
+            newPower = 5000
+        else:
+            newPower = 2500
+
+        dischargePower = dbus_getvalue(
+            bus, "com.victronenergy.settings", "/Settings/CGwacs/MaxDischargePower"
+        )
+        if dischargePower != newPower:
+            dbus_setvalue(
+                bus, "com.victronenergy.settings", "/Settings/CGwacs/MaxDischargePower", newPower
+            )
+            print(time.asctime(), "Setting DischargePower:", newPower, "SOC:", soc)
 
         time.sleep(_RefreshSleep)
 
