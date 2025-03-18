@@ -83,7 +83,7 @@ while True:
             print(time.asctime(), f"Setting ChargePower: {newPower:.1f}W vBat:{vbat:.2f}V")
 
         soc = dbus_getvalue(bus, "com.victronenergy.system", "/Dc/Battery/Soc")
-        if soc > 50:
+        if soc > 40:
             newPower = 5000
         else:
             newPower = 2500
