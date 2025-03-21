@@ -2,7 +2,15 @@
 
 import dbus
 import time
+import sys
+import os
 
+# Regelung von MaxChargePower und MaxDischargePower
+# In /data/rc.local:
+#    nohup /data/home/root/ladeRegler.py >/data/home/root/ladeRegler.log&
+
+# Um den Prozess einfach killen zu können
+print(os.getpid())
 
 # === CONFIG ===
 
@@ -81,6 +89,7 @@ while True:
                 bus, "com.victronenergy.settings", "/Settings/CGwacs/MaxChargePower", newPower
             )
             print(time.asctime(), f"Setting ChargePower: {newPower:.1f}W vBat:{vbat:.2f}V")
+            sys.stdout.flush()
 
         soc = dbus_getvalue(bus, "com.victronenergy.system", "/Dc/Battery/Soc")
         if soc > 40:
@@ -96,6 +105,7 @@ while True:
                 bus, "com.victronenergy.settings", "/Settings/CGwacs/MaxDischargePower", newPower
             )
             print(time.asctime(), "Setting DischargePower:", newPower, "SOC:", soc)
+            sys.stdout.flush()
 
         time.sleep(_RefreshSleep)
 
