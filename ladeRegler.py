@@ -88,7 +88,7 @@ while True:
             dbus_setvalue(
                 bus, "com.victronenergy.settings", "/Settings/CGwacs/MaxChargePower", newPower
             )
-            print(time.asctime(), f"Setting ChargePower: {newPower:.1f}W vBat:{vbat:.2f}V")
+            print(time.asctime(), f"Setting MaxCharge: {newPower:.1f}W vBat:{vbat:.2f}V")
             sys.stdout.flush()
 
         soc = dbus_getvalue(bus, "com.victronenergy.system", "/Dc/Battery/Soc")
@@ -104,7 +104,7 @@ while True:
             dbus_setvalue(
                 bus, "com.victronenergy.settings", "/Settings/CGwacs/MaxDischargePower", newPower
             )
-            print(time.asctime(), "Setting DischargePower:", newPower, "SOC:", soc)
+            print(time.asctime(), "Setting MaxDischarge:", newPower, "SOC:", soc)
             sys.stdout.flush()
 
         time.sleep(_RefreshSleep)
